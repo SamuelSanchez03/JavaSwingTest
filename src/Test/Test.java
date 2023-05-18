@@ -10,6 +10,7 @@ import javax.swing.event.*;
 import java.awt.event.MouseEvent.*;
 import javax.swing.JPopupMenu.*;
 import javax.swing.JMenuItem.*;
+import javax.swing.Timer;
 
 
 /**
@@ -37,6 +38,7 @@ public class Test extends javax.swing.JFrame {
         jFrame1 = new javax.swing.JFrame();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
+        jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jFileChooser1 = new javax.swing.JFileChooser();
 
@@ -63,9 +65,21 @@ public class Test extends javax.swing.JFrame {
                 jTree1MouseClicked(evt);
             }
         });
+        jTree1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jTree1PropertyChange(evt);
+            }
+        });
         jTree1.addMouseListener(new PopClickListener());
         jScrollPane1.addMouseListener(new PopClickListener());
         jScrollPane1.setViewportView(jTree1);
+
+        jButton1.setText("refresh");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jFileChooser1.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
         jFileChooser1.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
@@ -98,7 +112,9 @@ public class Test extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(37, 37, 37)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(109, Short.MAX_VALUE))
@@ -107,7 +123,9 @@ public class Test extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(32, 32, 32)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1))
             .addGroup(layout.createSequentialGroup()
                 .addGap(5, 5, 5)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -125,6 +143,25 @@ public class Test extends javax.swing.JFrame {
             jTree1.setModel(fileModel);
             jScrollPane1.setVisible(true);
             System.out.println("approve selection");
+            
+            Timer timer = new Timer(100, new java.awt.event.ActionListener(){
+                int initChilds = jTree1.getModel().getChildCount(jTree1.getModel().getRoot());
+                
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e)
+                {
+                    File root = (File) jTree1.getModel().getRoot();
+                    int currentChilds = jTree1.getModel().getChildCount((Object)root);
+                    if (currentChilds != initChilds)
+                    {
+                        initChilds = currentChilds;
+                        TreeModel model = new FileTreeModel(root);
+                        jTree1.setModel(model);
+                    }
+                }
+            });
+            timer.start();
+        
         } else if (evt.getActionCommand().equals(javax.swing.JFileChooser.CANCEL_SELECTION)) {
             
             System.out.println("cancel selection");
@@ -140,6 +177,18 @@ public class Test extends javax.swing.JFrame {
         else if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1)
             System.out.println("Click Izquierdo");
     }//GEN-LAST:event_jTree1MouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        TreePath[] paths = jTree1.getSelectionPaths();
+        for (TreePath path : paths != null ? paths : new TreePath[0]) {
+            System.out.println("You've selected: " + path.getLastPathComponent());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+    
+    private void jTree1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jTree1PropertyChange
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTree1PropertyChange
 
     /**
      * @param args the command line arguments
@@ -201,7 +250,7 @@ public class Test extends javax.swing.JFrame {
         }
     }
     
-    class FileTreeModel implements TreeModel{
+    static class FileTreeModel implements TreeModel{
         protected File root;
         public FileTreeModel (File root)
         {
@@ -265,6 +314,7 @@ public class Test extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JPanel jPanel2;
